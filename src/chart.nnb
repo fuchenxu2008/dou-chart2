@@ -1,0 +1,32 @@
+{
+    "cells": [
+        {
+            "language": "shellscript",
+            "source": [
+                "# Install dependencies\n# npm install danfojs-node"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "typescript",
+            "source": [
+                "const dfd = require('danfojs-node') as typeof import('danfojs-node');\nconst fs = require('fs');\nconst path = require('path');\nconst { Plotly } = require('node-kernel');\n"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "typescript",
+            "source": [
+                "async function renderChart(groupNo, saveFile: boolean = false) {\n    const df = await dfd.read_csv(`../data/group${groupNo}.csv`, {});\n\n    const x = df['V (V)'].$data;\n    const y1 = df['I (A)'].$data;\n    const y2 = df['P (W)'].$data;\n\n    const y1_max = Math.max(...y1) + 1;\n    const y2_max = Math.max(...y2) + 1;\n    \n    const data = [\n        {\n            x,\n            y: y1,\n            name: 'I (A) data',\n            type: 'scatter',\n        },\n        {\n            x,\n            y: y2,\n            name: 'P (W) data',\n            type: 'scatter',\n            yaxis: 'y2',\n        },\n    ];\n    \n    const layout = {\n        title: `Sample ${groupNo}`,\n        showlegend: true,\n        legend: {\n            x: 0.9,\n            y: 1.3,\n        },\n        xaxis: {\n            title: 'V (V)',\n        },\n        yaxis: {\n            title: 'I (A)',\n            range: [0, y1_max],\n            dtick: y1_max / 5,\n        },\n        yaxis2: {\n            title: 'P (W)',\n            overlaying: 'y',\n            side: 'right',\n            range: [0, y2_max],\n            dtick: y2_max / 5,\n        },\n        height: 400,\n        width: 600,\n    };\n\n    await Plotly.newPlot('myDiv', data, layout);\n    if (saveFile)\n        await Plotly.toFile(\n            data,\n            layout,\n            'png',\n            path.join(__dirname, `/../images/sample${groupNo}.png`)\n        );\n}\n"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "typescript",
+            "source": [
+                "fs.readdir(__dirname + '/../data/', async (err, files) => {\n  for (let i = 0; i < files.length; i++) {\n    await renderChart(i + 1, true);\n  }\n});"
+            ],
+            "outputs": []
+        }
+    ]
+}

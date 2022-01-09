@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "danfojs-node": "^0.3.4",
+    "csvtojson": "^2.0.10",
     "event-stream": "^4.0.1",
     "plotly": "^1.0.6"
   },
